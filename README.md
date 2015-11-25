@@ -6,19 +6,19 @@ ans use that from your python code.
 
 This is a thin wrapper aroung go library for photomosaic generation.
 
-# Installation
+## Installation
 From the src directory
 
 pymosaic/src$ go build -buildmode=c-shared -o ../dist/pymosaic.so 
 
 Now copy pymosaic.so to your virtual environments site-packages.
 
-# Usage
+## Quick Start
 You can read about photomosaics here:
 https://en.wikipedia.org/wiki/Photographic_mosaic
 You need a library of tile images and a target photo to generate a photomosaic.
 
-flickr client:
+### flickr client:
 pymosaic also includes a flickr client to download images with sepcified tag to help build your tile library.
 ```python
 download(flickr_tag, number, libdir, api_key)
@@ -33,7 +33,7 @@ example:
 >>>import pymosaic
 >>>pymosaic.download("waffles", 200, "<homedir>/tiledir", "<flickr api key>")
 ```
-mosaic generation
+### mosaic generation
 ```python
 analyze_images(libdir)
 ```
