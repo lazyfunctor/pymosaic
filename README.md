@@ -20,6 +20,8 @@ You need a library of tile images and a target photo to generate a photomosaic.
 
 ### flickr client:
 pymosaic also includes a flickr client to download images with sepcified tag to help build your tile library.
+
+##### pymosaic.download
 ```python
 download(flickr_tag, number, libdir, api_key)
 ```
@@ -34,6 +36,8 @@ example:
 >>>pymosaic.download("waffles", 200, "<homedir>/tiledir", "<flickr api key>")
 ```
 ### mosaic generation
+
+##### pymosaic.analyze_images
 ```python
 analyze_images(libdir)
 ```
@@ -45,6 +49,9 @@ example:
 ```python
 >>>img_statistics = pymosaic.analyze_images("<homedir>/tiledir")
 ```
+
+##### pymosaic.generate_mosaic
+
 ```python
 generate_mosaic(<target_image>, <mosaic_image>, <img_statistics>)
 ```
