@@ -9,7 +9,7 @@ This is a thin wrapper aroung go library for photomosaic generation.
 ## Installation
 From the src directory
 
-pymosaic/src$ go build -buildmode=c-shared -o ../dist/pymosaic.so 
+pymosaic/src$ go build -buildmode=c-shared -o pymosaic.so 
 
 Now copy pymosaic.so to your virtual environments site-packages.
 
