@@ -7,9 +7,15 @@ ans use that from your python code.
 This is a thin wrapper aroung go library for photomosaic generation.
 
 ## Installation
+This project has dependency on resize for scaling down large images:
+https://github.com/nfnt/resize 
+
+To install:
+https://github.com/nfnt/resize#installation
+
 From the src directory
 
-pymosaic/src$ go build -buildmode=c-shared -o pymosaic.so 
+pymosaic$ go build -buildmode=c-shared -o pymosaic.so 
 
 Now copy pymosaic.so to your virtual environments site-packages.
 
