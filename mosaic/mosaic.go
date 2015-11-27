@@ -7,12 +7,17 @@ import (
     "container/heap"
     _ "image/color"
     "math"
+    "strings"
     "sync"
     "image/draw"
     "image/png"
+    "image/jpeg"
     "encoding/json"
+    "github.com/nfnt/resize"
     )
 
+// max pixels in target image, else we scale it down
+const maxPixels = 640000
 
 type Distance struct {
     dist float64
@@ -138,7 +143,7 @@ func calcGridAvg(x int, y int, img image.Image) (color [3]float64){
 func ImageAssembler(jigsaw chan *Tile, cellsX int, cellsY int, gridSize int, imgSync *sync.WaitGroup, output string) {
     defer imgSync.Done()
     tileSize := 75
-    img := image.NewRGBA(image.Rect(0, 0, cellsX*tileSize, cellsX*tileSize))
+    img := image.NewRGBA(image.Rect(0, 0, cellsX*tileSize, cellsY*tileSize))
     for tile := range jigsaw {
         reader, err := os.Open(tile.path)
         if err != nil {
@@ -162,12 +167,37 @@ func ImageAssembler(jigsaw chan *Tile, cellsX int, cellsY int, gridSize int, img
         fmt.Println(err)
         return
     }
-    err = png.Encode(out, img)
+    //err = png.Encode(out, img)
+    if strings.HasSuffix(output, "png") {
+        encoder := &png.Encoder{CompressionLevel: png.BestCompression}
+        err = encoder.Encode(out, img)
+    } else if strings.HasSuffix(output, "jpg") || strings.HasSuffix(output, "jpeg"){
+        err = jpeg.Encode(out, img, &jpeg.Options{Quality: 75})
+    }
     if err != nil {
         fmt.Println(err)
         return
     }
     out.Close()
+}
+
+func scaleDown(targetImage image.Image) (img image.Image, err error) {
+    bounds := targetImage.Bounds()
+    xDim := bounds.Max.X
+    yDim := bounds.Max.Y
+    size := xDim * yDim
+    if size > maxPixels {
+        factor := size/maxPixels
+        fmt.Println("size reduction", factor, "old size", size)
+        dimFactor := math.Sqrt(float64(factor))
+        newX := uint(xDim / int(dimFactor))
+        fmt.Println(newX)
+        img = resize.Resize(newX, 0, targetImage, resize.Lanczos2)
+        fmt.Println("new size", img.Bounds().Max.X * img.Bounds().Max.Y)
+    } else {
+        img = targetImage
+    }
+    return
 }
 
 func AnalyzeTarget(inp, tileDataString, output string ) (err error) {
@@ -180,11 +210,16 @@ func AnalyzeTarget(inp, tileDataString, output string ) (err error) {
     if err != nil {
         return
     }
-    image, _, err := image.Decode(reader)
+    targetImage, _, err := image.Decode(reader)
     if err != nil {
         return
     }
-    bounds := image.Bounds()
+    targetImage, err = scaleDown(targetImage)
+    if err != nil {
+        return
+    }
+
+    bounds := targetImage.Bounds()
     cellsX := (bounds.Max.X + 1)/gridSize
     cellsY := (bounds.Max.Y + 1)/gridSize
     gridChan := make(chan *Grid)
@@ -201,7 +236,7 @@ func AnalyzeTarget(inp, tileDataString, output string ) (err error) {
     }
     for x := 0; x < cellsX; x++ {
         for y := 0; y < cellsY; y++ {
-            gridColor := calcGridAvg(x, y, image)
+            gridColor := calcGridAvg(x, y, targetImage)
             gridChan <- &Grid{X:x, Y:y, Color: gridColor}
             //FindBestTile(gridColor, tileData)
         }

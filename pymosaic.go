@@ -8,9 +8,11 @@ package main
 // int PyArg_ParseTuple_SSS(PyObject *, char **, char **, char **);
 import "C"
 
-import "./client"
-import "./mosaic"
+import "github.com/lazyfunctor/pymosaic/client"
+import "github.com/lazyfunctor/pymosaic/mosaic"
 import "fmt"
+
+
 
 //export download
 func download(self, args *C.PyObject) *C.PyObject {
